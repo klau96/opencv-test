@@ -34,21 +34,46 @@ def drawGrayscale(img):
 def drawCannyEdges(img):
     canny = cv.Canny(img, 125, 175)
     cv.imshow("Canny Edges", canny)
+    return canny
 
 
-drawBlank()
+def drawBlueImage(img):
+    blank = np.zeros(img.shape[:2], dtype="uint8")  # only the first 2 values of shape
+    print(img.shape)
+
+
+def drawBitwise(img, img2):
+    operation = cv.bitwise_and(img, img2)
+    cv.imshow("bitwise", operation)
+
+
+def drawCircle(img):
+    circle = cv.circle(img, (img.shape[1] // 2, img.shape[0] // 2), 200, 255, -1)
+    cv.imshow("circle", circle)
+
 
 capture = cv.VideoCapture(0)
 
-# main
+isTrue, frame = capture.read()
+resized_first_frame = rescaleFrame(frame=frame)
+blank = np.zeros(resized_first_frame.shape[:2], dtype="uint8")
+drawCircle(blank)
+
+
+# MAIN
 while True:
     isTrue, frame = capture.read()
 
     resized_frame = rescaleFrame(frame=frame)
+    b, g, r = cv.split(resized_frame)
+    blue_frame = cv.merge([b, blank, blank])
 
-    # cv.imshow("MacOS Webcam", frame)
-    # cv.imshow("Macos Webcam resized", resized_frame)
-    drawCannyEdges(resized_frame)
+    canny = drawCannyEdges(resized_frame)
+    cv.imshow("Blue", blue_frame)
+
+    canny2bgr = cv.cvtColor(canny, cv.COLOR_GRAY2BGR)
+
+    drawBitwise(blue_frame, canny2bgr)
 
     if cv.waitKey(20) & 0xFF == ord("q"):  # bitwise operation to only take first bits
         break
