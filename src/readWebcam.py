@@ -19,7 +19,7 @@ def rescaleFrame(frame, scale=0.5):
 # ==== Helper draw functions ====
 
 
-def drawBlank():
+def drawBlankRectangle():
     blank = np.zeros((500, 500, 3), dtype="uint8")
     cv.rectangle(blank, (150, 150), (350, 350), (255, 155, 0), 2)
 
