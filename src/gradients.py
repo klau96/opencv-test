@@ -19,6 +19,9 @@ def laplacian(gray):
     return lap
 
 
+gauss = gaussianBlur(img, sigmas=(3, 3))
+gray = cv.cvtColor()
+
 while True:
     laplacian(img)
     if cv.waitKey(20) & 0xFF == ord("q"):
