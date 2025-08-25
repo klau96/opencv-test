@@ -13,23 +13,49 @@ def gaussianBlur(img, sigmas=(7, 7), border=0):
     return gauss
 
 
-# laplacian
+# sobel x
+# sobel y
+# combined sobel (first derivative)
+def combinedSobel(gray):
+    sobelX = cv.Sobel(gray, cv.CV_64F, 1, 0)
+    sobelY = cv.Sobel(gray, cv.CV_64F, 0, 1)
+    # cv.imshow("Sobel X", sobelX)
+    # cv.imshow("Sobel Y", sobelY)
+    combined_sobel = cv.bitwise_or(sobelX, sobelY)
+    cv.imshow("Combined Sobel", combined_sobel)
+
+    return combined_sobel
+
+
+# laplacian (second derivative)
 # apply laplacian operator to find gradients
 def laplacian(gray):
     lap = cv.Laplacian(gray, cv.CV_64F)
+    lap = np.uint8(np.absolute(lap))
     cv.imshow("laplacian", lap)
     return lap
 
 
-# sobel x
-# sobel y
-# combined sobel
-# bitwise_or — laplacian and combined sobel
+capture = cv.VideoCapture(0)
+
+gauss = gaussianBlur(img)
+gray = cv.cvtColor(gauss, cv.COLOR_BGR2GRAY)
+
+newgray = np.copy(gray)
+lap = laplacian(gray)
+csobel = combinedSobel(gray)
 
 while True:
+    isTrue, frame = capture.read()
+
+    # gauss = gaussianBlur(frame)
+    # gray = cv.cvtColor(gauss, cv.COLOR_BGR2GRAY)
+    # lap = laplacian(gray)
+    # combinedsobel = combinedSobel(gray)
 
     if cv.waitKey(20) & 0xFF == ord("q"):
         break
 
-# capture.release()
-cv.destroyAllWindows()
+
+capture.release()
+# cv.destroyAllWindows()
