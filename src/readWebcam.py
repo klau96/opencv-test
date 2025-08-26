@@ -1,6 +1,8 @@
 import numpy as np
 import cv2 as cv
+import os
 
+dir = os.path.dirname(os.path.abspath(__file__))
 # img = cv.imread("src/static/p5r-joker-allout.webp")
 # cv.imshow("p5r allout attack", img)
 # cv.waitKey(0)
@@ -26,9 +28,10 @@ def drawBlankRectangle():
     cv.imshow("Blank", blank)
 
 
-def drawGrayscale(img):
+def cv_grayscale(img):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    cv.imshow("Gray", gray)
+    # cv.imshow("Gray", gray)
+    return gray
 
 
 def drawCannyEdges(img):
@@ -42,9 +45,9 @@ def drawBlueImage(img):
     print(img.shape)
 
 
-def drawBitwise(img, img2):
+def cv_bitwise_and(img, img2):
     operation = cv.bitwise_and(img, img2)
-    cv.imshow("bitwise", operation)
+    return operation
 
 
 def drawCircle(img):
@@ -52,12 +55,29 @@ def drawCircle(img):
     cv.imshow("circle", circle)
 
 
+# haar cascade
+haar_path = os.path.join(dir, "haarcascade.xml")
+haar_cascade = cv.CascadeClassifier(haar_path)
+
+
+def detectFace(gray):
+    # detect multi scale
+    # — tweak parameters to change sensitivity to noise
+    faces_coord = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
+
+    return faces_coord
+
+
+def drawRectangleAtFace(img, faces_coord):
+    for x, y, w, h in faces_coord:
+        cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), thickness=2)
+
+
 capture = cv.VideoCapture(0)
 
 isTrue, frame = capture.read()
 resized_first_frame = rescaleFrame(frame=frame)
 blank = np.zeros(resized_first_frame.shape[:2], dtype="uint8")
-drawCircle(blank)
 
 
 # MAIN
@@ -65,6 +85,7 @@ while True:
     isTrue, frame = capture.read()
 
     resized_frame = rescaleFrame(frame=frame)
+    gray = cv_grayscale(resized_frame)
     b, g, r = cv.split(resized_frame)
     blue_frame = cv.merge([b, blank, blank])
 
@@ -72,8 +93,11 @@ while True:
     cv.imshow("Blue", blue_frame)
 
     canny2bgr = cv.cvtColor(canny, cv.COLOR_GRAY2BGR)
+    cannyblue = cv_bitwise_and(blue_frame, canny2bgr)
 
-    drawBitwise(blue_frame, canny2bgr)
+    faces_coord = detectFace(gray)
+    drawRectangleAtFace(cannyblue, faces_coord)
+    cv.imshow("Canny Blue Face Detection", cannyblue)
 
     if cv.waitKey(20) & 0xFF == ord("q"):  # bitwise operation to only take first bits
         break
