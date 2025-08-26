@@ -15,13 +15,14 @@ gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 haar_path = os.path.join(dir, "haarcascade.xml")
 haar_cascade = cv.CascadeClassifier(haar_path)
 
+# detect multi scale
+# — tweak parameters to change sensitivity to noise
 faces_coord = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
 
 print(f"face is at coord: {faces_coord}")
 
 for x, y, w, h in faces_coord:
     cv.rectangle(img, (x, y), (x + w, y + h), (50, 255, 50), thickness=2)
-
 
 cv.imshow("Gray face", gray)
 cv.imshow("mark face detect", img)
