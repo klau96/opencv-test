@@ -1,6 +1,7 @@
+import os
 import cv2 as cv
 import numpy as np
-import os
+
 
 dir = os.path.dirname(os.path.abspath(__file__))
 img_path = os.path.join(dir, ".", "static", "mark_interview.jpg")
