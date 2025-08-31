@@ -1,3 +1,9 @@
 numpy
 opencv-python
+<<<<<<< HEAD
 matplotlib
+=======
+matplotlib
+dotenv
+axios
+>>>>>>> 275ef5d (rookie mistake)
