@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 IMAGES_API_KEY = os.getenv("IMAGES_API_KEY")
+IMAGES_CX = os.getenv("IMAGES_CX")
 # functionality
 #   download images from google search
 #   given parameters: name, limit,
