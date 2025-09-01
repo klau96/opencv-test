@@ -1,3 +1,5 @@
 numpy
 opencv-python
 matplotlib
+bs4
+dotenv
