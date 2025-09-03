@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 dir = os.path.dirname(os.path.abspath(__file__))
 root = os.path.dirname(dir)  # go up to project root directory
 faces_folder = os.path.join(root, "faces")
+raw_folder = os.path.join(root, "raw")
 
 load_dotenv()
 IMAGES_API_KEY = os.getenv("IMAGES_API_KEY")
@@ -21,7 +22,7 @@ default_headers = {
 }
 
 default_params = {
-    "num": "10",
+    "num": "1",
     "searchType": "image",
     "imgType": "face",
     "cx": f"{IMAGES_CX}",
@@ -128,7 +129,7 @@ def send_search(query):
 
     data = result.json()
 
-    with open(f"{query_filename}.txt", "w") as file:
+    with open(f"{os.path.join(raw_folder, query_filename)}.txt", "w") as file:
 
         # Error Handling: Items is missing or has none
         if not "items" in data or not len(data["items"]) > 0:
