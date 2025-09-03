@@ -70,35 +70,53 @@ def check_image_extension(response):
         return False
 
 
-def save_file_to_folder(response, path, image_extension):
-    print("CASE 1: ", dir, root)
-    # TODO: Write functionality for saving a file to the folder
-    # Write the file name, file path
-    # Error handling for file
+def create_unique_path(query_filename, url, image_extension):
+    print("create unique: ", query_filename)
+    return query_filename + url[-10:] + "." + image_extension
 
 
-def download_from_url(url, query, path):
+def save_file_to_folder(response, query_filename, path):
+    # TODO: Error handling for new file
+
+    # Create new folder if not existing
+    image_folder_dir = os.path.join(faces_folder, query_filename)
+    filepath = os.path.join(image_folder_dir, path)
+
+    try:
+        os.makedirs(image_folder_dir, exist_ok=True)
+    except OSError as e:
+        print(f"🚨 Error making directory. ")
+        exit(1)
+
+    # Write file to custom made path
+    with open(filepath, "wb") as file:
+        file.write(response.content)
+        file.close()
+
+
+def download_from_url(url, query_filename):
     """
-    Given a url, user query (e.g. "markiplier"), and path to folder,
+    Given a url, user query_filename (e.g. "markiplier_dog"), and path to folder,
     Download a file
-
     """
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"🚨 ERROR: Request Exception when downloading — {url}")
+        return None
 
     image_extension = check_image_extension(response)
     if image_extension:
-        save_file_to_folder(response, path, image_extension)
-
+        path = create_unique_path(query_filename, url, image_extension)
+        query_filename
+        save_file_to_folder(response, query_filename, path)
+        return os.path.join(faces_folder, query_filename)
+    else:
+        print(
+            f"🚨 ERROR CODE 415 — download_from_url(): Incorrect File Extension returned. {url}"
+        )
     return response
-
-
-def create_path_for_query_filename(query_filename):
-    query_filename += ".jpg"
-    return os.path.join(dir, "faces", query_filename)
 
 
 def send_search(query):
@@ -106,7 +124,7 @@ def send_search(query):
     result = get_request(user_search_query=user_search_query)
     print("RESULT:", result, result.headers.get("Content-Type", ""), type(result))
 
-    query_filename = query.replace(" ", "_")
+    query_filename = query.replace(" ", "_").replace(",", "")
 
     data = result.json()
 
@@ -121,9 +139,8 @@ def send_search(query):
         for item in data["items"]:
             if "link" in item:
                 link = item["link"]
-                path = create_path_for_query_filename(query_filename)
                 print(f"✅ Item Link: {item['link']}")
-                download_from_url(url=link, query=query, path=path)
+                download_from_url(url=link, query_filename=query_filename)
             else:
                 print(f"🚧 CAUTION: Item {item} has no link to image!")
 
