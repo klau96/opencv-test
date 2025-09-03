@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 
 dir = os.path.dirname(os.path.abspath(__file__))
+root = os.path.dirname(dir)  # go up to project root directory
+faces_folder = os.path.join(root, "faces")
 
 load_dotenv()
 IMAGES_API_KEY = os.getenv("IMAGES_API_KEY")
@@ -19,7 +21,7 @@ default_headers = {
 }
 
 default_params = {
-    "num": "10",
+    "num": "1",
     "searchType": "image",
     "imgType": "face",
     "cx": f"{IMAGES_CX}",
@@ -50,6 +52,31 @@ def get_request(user_search_query):
     return result
 
 
+image_extensions_dict = {
+    "image/jpeg": "jpeg",
+    "image/png": "png",
+}
+
+
+def check_image_extension(response):
+    """
+    Given a GET response, check "Content-Type" and verify with image extensions dictionary
+    Return image's extension, if valid
+    """
+    content_type = response.headers.get("Content-Type")
+    if content_type in image_extensions_dict:
+        return image_extensions_dict[content_type]
+    else:
+        return False
+
+
+def save_file_to_folder(response, path, image_extension):
+    print("CASE 1: ", dir, root)
+    # TODO: Write functionality for saving a file to the folder
+    # Write the file name, file path
+    # Error handling for file
+
+
 def download_from_url(url, query, path):
     """
     Given a url, user query (e.g. "markiplier"), and path to folder,
@@ -62,7 +89,11 @@ def download_from_url(url, query, path):
     except requests.exceptions.RequestException as e:
         print(f"🚨 ERROR: Request Exception when downloading — {url}")
 
-    # print(f"DOWNLOAD LINK for {path}: {response.content}")
+    image_extension = check_image_extension(response)
+    if image_extension:
+        save_file_to_folder(response, path, image_extension)
+
+    return response
 
 
 def create_path_for_query_filename(query_filename):
