@@ -21,7 +21,7 @@ default_headers = {
 }
 
 default_params = {
-    "num": "1",
+    "num": "10",
     "searchType": "image",
     "imgType": "face",
     "cx": f"{IMAGES_CX}",
@@ -147,4 +147,17 @@ def send_search(query):
         file.close()
 
 
-send_search(query="markiplier")
+people_list = [
+    "markiplier",
+    "jackscepticeye",
+    "pewdiepie",
+    "kim chaewon",
+    "ali abdaal",
+    "chloe shih",
+]
+
+# send_search(query="markiplier")
+
+for person in people_list:
+    print(f"======== STARTING SEARCH: {person} =========")
+    send_search(person)
