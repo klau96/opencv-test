@@ -22,7 +22,6 @@ default_headers = {
 }
 
 default_params = {
-    "num": "1",
     "searchType": "image",
     "imgType": "face",
     "cx": f"{IMAGES_CX}",
@@ -32,7 +31,7 @@ default_params = {
 # -------- ENDOF configuration --------
 
 
-def get_request(user_search_query):
+def get_request(user_search_query, page_info):
     """
     Parameter: user_search_query
 
@@ -42,15 +41,16 @@ def get_request(user_search_query):
     """
     all_query_params = default_params.copy()
     all_query_params.update(user_search_query)
+    all_query_params.update(page_info)
 
     request_object = requests.Request(
         method="GET", url=base_url, headers=default_headers, params=all_query_params
     )
 
-    result = requests.get(request_object.url, request_object.params)
-    result.raise_for_status()
+    response = requests.get(request_object.url, request_object.params)
+    response.raise_for_status()
 
-    return result
+    return response
 
 
 image_extensions_dict = {
@@ -120,20 +120,29 @@ def download_from_url(url, query_filename):
     return response
 
 
-def send_search(query):
+def send_search(query, total_results_needed=10):
     user_search_query = {"q": query}
-    result = get_request(user_search_query=user_search_query)
-    print("RESULT:", result, result.headers.get("Content-Type", ""), type(result))
+    current_start = 1
+    num_per_page = default_params["num"]
+
+    # TODO: Paginate results by implementing logic to control "start" and "num" request parameters
+
+    response = get_request(user_search_query=user_search_query)
+    print(
+        "send_search RESPONSE:",
+        response,
+        response.headers.get("Content-Type", ""),
+        type(response),
+    )
 
     query_filename = query.replace(" ", "_").replace(",", "")
 
-    data = result.json()
+    data = response.json()
 
     with open(f"{os.path.join(raw_folder, query_filename)}.txt", "w") as file:
-
         # Error Handling: Items is missing or has none
         if not "items" in data or not len(data["items"]) > 0:
-            print("\n🚨 ERROR: Items from result.json() invalid / incorrect length!")
+            print("\n🚨 ERROR: Items from response.json() invalid / incorrect length!")
             exit(1)
 
         # Loop through every item in the image search results
@@ -145,6 +154,7 @@ def send_search(query):
             else:
                 print(f"🚧 CAUTION: Item {item} has no link to image!")
 
+        json.dump(data, file)
         file.close()
 
 
